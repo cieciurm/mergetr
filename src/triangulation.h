@@ -5,4 +5,6 @@
 
 int initTriangulation (struct triangulateio *out);
 
+int freeTriangulation (struct triangulateio *out);
+
 #endif

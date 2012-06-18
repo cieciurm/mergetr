@@ -14,15 +14,16 @@ int main (int argc, char **argv)
 {
 	Options mergetr = readParameters (argc, argv);
 
-	char filename_mesh_node[32];
-	char filename_mesh_ele[32];
-	char filename_otoczka[32];
-	char filename_output_node[32];
-	char filename_output_ele[32];
+	char filename_mesh_node[FILENAME_MAX];
+	char filename_mesh_ele[FILENAME_MAX];
+	char filename_otoczka[FILENAME_MAX];
+	char filename_output_node[FILENAME_MAX];
+	char filename_output_ele[FILENAME_MAX];
 	int no_of_meshes = argc-mergetr.args_start;
 
 	strcpy (filename_otoczka, mergetr.input);
-	strcat (filename_otoczka,  ".poly");
+	if ( strstr (filename_otoczka, ".poly") == NULL) 
+		strcat (filename_otoczka,  ".poly");
 
 	strcpy (filename_output_node, mergetr.output);
 	strcat (filename_output_node,  ".node");
@@ -138,6 +139,13 @@ int main (int argc, char **argv)
 	fclose (file_output_ele);
 
 	fprintf(stdout, "************************************\n");
-	
+
+	free (p);
+	free (v);
+	freeTriangulation (&otoczka);
+	freeTriangulation (&out);
+	for (i = 0; i < no_of_meshes; i++)
+		freeTriangulation (&siatka[i]);
+		
 	return 0;
 }

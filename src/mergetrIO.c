@@ -51,6 +51,8 @@ int readSegments (FILE *in, struct triangulateio *x)
 {
 	int tmp, tmp_markers;
 	int i;
+	int v1, v2;
+	int is_zero = 0;
 
 	if (fscanf(in, "%d %d", &x->numberofsegments, &tmp_markers) != 2)
 		return -7;
@@ -60,23 +62,34 @@ int readSegments (FILE *in, struct triangulateio *x)
 	else
 		return -8;
 
-	if (tmp_markers == 1)
+	if (tmp_markers == 1) 
 		x->segmentmarkerlist = malloc (x->numberofsegments * sizeof *x->segmentmarkerlist);
 	else if (tmp_markers == 0)
 		x->segmentmarkerlist = NULL;
 	else 
 		return -9;
 
-	x->segmentmarkerlist = NULL;
-
 	for (i = 0; i<x->numberofsegments; i++)
 	{
-		if (fscanf (in, "%d %d %d", &tmp, &x->segmentlist[2*i], &x->segmentlist[2*i+1]) != 3)
+		if (fscanf (in, "%d %d %d", &tmp, &v1, &v2) != 3)
 			return -10;
+			x->segmentlist[2*i] = v1;
+			x->segmentlist[2*i+1] = v2;
+
+		if (v1 == 0 || v2 == 0)
+			is_zero = 1;
 	
-		if (x->segmentmarkerlist != NULL)
+		if (x->segmentmarkerlist != NULL) 
 			if (fscanf (in, "%d", &x->segmentmarkerlist[i]) != 1)
 				return -11; 
+	}
+
+	if (is_zero == 1) {
+		fprintf (stdout, "* Points in otoczka are numerated from 0!\n");
+		 for (i = 0; i < x->numberofsegments; i++) {
+			x->segmentlist[2*i] 	 += 1;
+			x->segmentlist[2*i+1] += 1;
+		}
 	}
 
 	if (x->segmentmarkerlist == NULL)
@@ -111,6 +124,8 @@ int readTriangles (FILE *in, struct triangulateio *x)
 {
 	int tmp;
 	int i, j;
+	int v1, v2, v3;
+	int is_zero = 0;
 
 	if (fscanf (in, "%d %d %d", &x->numberoftriangles, &tmp, &x->numberoftriangleattributes) != 3)
 		return -13;
@@ -134,8 +149,14 @@ int readTriangles (FILE *in, struct triangulateio *x)
 
 	for (i = 0; i < x->numberoftriangles; i++) {
 	
-		if ( fscanf(in, "%d %d %d %d", &tmp, &x->trianglelist[3*i], &x->trianglelist[3*i+1], &x->trianglelist[3*i+2]) != 4)
+		if ( fscanf(in, "%d %d %d %d", &tmp, &v1, &v2, &v3) != 4 )
 			return -16;
+		x->trianglelist[3*i] = v1;
+		x->trianglelist[3*i+1] = v2;
+		x->trianglelist[3*i+2] = v3;
+
+		if (v1 == 0 || v2 == 0 || v3 == 0)
+			is_zero = 1;
 
 		if (x->numberoftriangleattributes > 0)
 			for (j = i*x->numberoftriangleattributes; j < i*x->numberoftriangleattributes+x->numberoftriangleattributes; j++)
@@ -143,9 +164,18 @@ int readTriangles (FILE *in, struct triangulateio *x)
 					return -17;
 		}
 
-	fprintf(stdout, "* Read %d triangles with %d attribute(s).\n", x->numberoftriangles, x->numberoftriangleattributes);
+		if (is_zero == 1) {
+			fprintf (stdout, "* Points in mesh are numerated from 0!\n");
+			for (i = 0; i < x->numberoftriangles; i++ ) {
+				x->trianglelist[3*i]++;
+				x->trianglelist[3*i+1]++;
+				x->trianglelist[3*i+2]++;
+			}
+		}
+		
+		fprintf(stdout, "* Read %d triangles with %d attribute(s).\n", x->numberoftriangles, x->numberoftriangleattributes);
 	
-	return 0;
+		return 0;
 }
 
 int readRegions (FILE *in, struct triangulateio *x)

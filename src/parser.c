@@ -11,7 +11,7 @@ Options readParameters (int argc, char *argv[])
 	Options wywolanie;
 
 	wywolanie.input = "otoczka";
-	wywolanie.output = "test/result";
+	wywolanie.output = "./test/result";
 	strcpy(wywolanie.tr_opt, "");
    
 	while ( (opt = getopt(argc, argv, "p:o:a:q:")) != -1 ) 
