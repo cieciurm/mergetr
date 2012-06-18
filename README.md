@@ -1,4 +1,4 @@
 mergetr
 =======
 
-TBA
+A rather useless program written in C for academic purposes
